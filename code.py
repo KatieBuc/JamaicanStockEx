@@ -1,14 +1,16 @@
 import csv
 import matplotlib.pyplot as plt
-#import numpy as np
-import matplotlib as mpl #using repl.it, no GUI server to display this on
+import numpy as np
+import matplotlib as mpl #using repl.it which has no GUI server to display graphs on, so I have to import this lib
 mpl.use('Agg')
+
 JSEIndex = []
 JSEJunior = []
 CombIndex = []
 AllJamacian = []
 JSESelect = []
 USEquities =[]
+ValuesDF = []
 
 #JSE Index
 with open('index-history.csv') as csvfile:
@@ -77,10 +79,80 @@ with open('index-history (5).csv') as csvfile:
 print(USEquities)
 
 #plot prices
-plt.plot(JSEJunior)
-plt.plot(JSEIndex)
-plt.plot(CombIndex)
-plt.plot(AllJamacian)
-plt.plot(JSESelect)
-plt.plot(USEquities)
+plt.plot(JSEJunior, label="JSE Junior")
+plt.plot(JSEIndex, label="JSE Index")
+plt.plot(CombIndex, label="Combined Index")
+plt.plot(AllJamacian, label="All Jamacian")
+plt.plot(JSESelect, label="JSE Select")
+plt.plot(USEquities, label="US Equities")
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=3, mode="expand", borderaxespad=0.)
 plt.savefig('graph.png')
+plt.clf()
+
+#finding cross correlations
+#print(np.correlate(JSEJunior, JSEIndex))
+
+#normalising each Index price
+JSEJunior_normed = [i/sum(JSEJunior) for i in JSEJunior]
+JSEIndex_normed = [i/sum(JSEIndex) for i in JSEIndex]
+CombIndex_normed = [i/sum(CombIndex) for i in CombIndex]
+AllJamacian_normed = [i/sum(AllJamacian) for i in AllJamacian]
+JSESelect_normed = [i/sum(JSESelect) for i in JSESelect]
+USEquities_normed = [i/sum(USEquities) for i in USEquities]
+#print(JSEJunior_normed)
+
+#plotting the normalised price values
+plt.plot(JSEJunior_normed, label="JSE Junior")
+plt.plot(JSEIndex_normed, label="JSE Index")
+plt.plot(CombIndex_normed, label="Combined Index")
+plt.plot(AllJamacian_normed, label="All Jamacian")
+plt.plot(JSESelect_normed, label="JSE Select")
+plt.plot(USEquities_normed, label="US Equities")
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=3, mode="expand", borderaxespad=0.)
+plt.savefig('graph-norm.png')
+plt.clf()
+
+#ValuesDF = pd.DataFrame(list(zip(JSEJunior, JSEIndex, CombIndex, AllJamacian, JSESelect, USEquities)))
+#print(ValuesDF)
+StringCorr = []
+
+#claculating the Pearson correlation
+ValCorr = np.corrcoef(JSEJunior_normed, JSEIndex_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(JSEJunior_normed, CombIndex_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(JSEJunior_normed, AllJamacian_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(JSEJunior_normed, JSESelect_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(JSEJunior_normed, USEquities_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(JSEIndex_normed, CombIndex_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(JSEIndex_normed, AllJamacian_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(JSEIndex_normed, JSESelect_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(JSEIndex_normed, USEquities_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(CombIndex_normed, AllJamacian_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(CombIndex_normed, JSESelect_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(CombIndex_normed, USEquities_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(AllJamacian_normed, JSESelect_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(AllJamacian_normed, USEquities_normed)[0, 1]
+StringCorr.append(ValCorr)
+ValCorr = np.corrcoef(JSESelect_normed, USEquities_normed)[0, 1]
+StringCorr.append(ValCorr)
+
+print(StringCorr)
+
+plt.plot([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],StringCorr,'g^', label="")
+plt.savefig('graph-Corr.png')
+plt.clf()
+
